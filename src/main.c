@@ -328,7 +328,7 @@ int conversion( t_number num_i, t_number num_o, int bVerbose )
     {
       int done = 0 ;
       int i    = 0 ;
-      char l   = '0';
+      char l   = num_o->set[0];
       int lead = 1 ;
       while ( 1 )
       {
@@ -356,7 +356,7 @@ int conversion( t_number num_i, t_number num_o, int bVerbose )
 	int num = gos_char( c , num_i ) + gos_char( l , num_o )*num_i->base ;
 	int mul = ( num/num_o->base ) ;
 	l = sog_int( num - num_o->base*mul , num_o );
-	num_i->value[i] = mul + num_i->set[0]; // SHIFTS CHAR. MEMORY EFFICIENT BOOK KEEPING
+	num_i -> value[i] = num_i->set[mul];
 	if ( bVerbose )
 	{
 	  fprintf ( stdout," %d ",mul ) ;
