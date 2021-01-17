@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
 #include <argp.h>
 
 #define SYMBOL_NULL_INDEX 48
@@ -35,7 +34,7 @@ static struct argp_option options[] =
   {"inputbase", 'i', "0123456789", 0,
    "input base character set"},
   {"ibase" ,  'n' , "10" , 0,
-   "convert from base n using generic set"},  
+   "convert from base n using generic set"},
   {"outputbase", 'o', "01", 0,
    "output base character set"},
   {"obase" ,  'm',  "2" , 0,
@@ -286,10 +285,7 @@ void algo( char *argv , int bases[2], int bVerbose )
 	int num = gos( c , bases[0] ) + gos(l,bases[1])*bases[0] ;
 	int mul = ( num/bases[1] ) ;
 	l = sog( num - bases[1]*mul , bases[1] ) ;
-	fprintf(stdout,"[%d]\n",l);
 	argv[i] = mul + SYMBOL_NULL_INDEX ;
-	fprintf(stdout,"[%d %d]\n",mul,SYMBOL_NULL_INDEX);
-	fprintf(stdout,"(%s)",argv);
 	if ( bVerbose )
 	{
 	  fprintf ( stdout,"[ %d ]",mul ) ;
@@ -348,8 +344,8 @@ int conversion( t_number num_i, t_number num_o, int bVerbose )
 	    done = 1;
 	  } else {
 	    if ( bVerbose )
-	      fprintf ( stdout," {%c} ",l );	    
-	    append_value_to_number( l , num_o );
+	      fprintf ( stdout," {%c} ",l ) ;
+	    append_value_to_number( l , num_o ) ;
 	  }
 	  break;
 	}
@@ -388,7 +384,7 @@ int main ( int argc, char *argv[] )
   // PARSE INPUT
   parse(argc,argv,pargs);
   //
-  // ASSIGN PARSED INPUT  
+  // ASSIGN PARSED INPUT
   if ( pargs->inputbase != NULL )
   {
     set_in   = pargs -> inputbase;
@@ -402,11 +398,11 @@ int main ( int argc, char *argv[] )
     bases[1] = carrlen ( set_out );
   } else { // IN THIS CASE THE OUTPUT BASE SET IS ASSIGNED LATER
     bases[1] = pargs -> obase;
-  }  
+  }
   int bVerbose = pargs -> verbose;
 
   t_number number_i , number_o ;
-  
+
   number_i = create_number() ;
   number_o = create_number() ;
 
@@ -425,7 +421,7 @@ int main ( int argc, char *argv[] )
 
   if ( bVerbose )
     show_number ( number_o );
-  
+
   free_number ( number_i );
   free_number ( number_o );
 
@@ -435,6 +431,6 @@ int main ( int argc, char *argv[] )
     print_base_character_set ( 10 ) ;
     print_base_character_set (  2 ) ;
   }
-  
+
   return ( 0 ) ;
 }
