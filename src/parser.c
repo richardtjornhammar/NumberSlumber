@@ -7,29 +7,23 @@ const char *argp_program_version =
 
 const char *argp_program_bug_address =
 "<richard.tjornhammar@gmail.com>";
-/*
-typedef struct argus {
-  char *args[1];                        // ARGUMENT
-  int   verbose,ibase,obase;            // VERBOSITY AND GENERIC BASE SETTING
-  char *inputbase,*outputbase;          // THE BASIS SETS
-} arguments;
-typedef arguments *t_arguments;
-*/
 //
 // OPTIONS.  Field 1 in ARGP.
 // Order of fields: {NAME, KEY, ARG, FLAGS, DOC}.
 //
 static struct argp_option options[] =
 {
-  {"verbose", 'v', 0, 0, "Produce verbose output"},
+  {"verbose", 'v', 0, 0, "Produce verbose output"} ,
+  {"add", '+', "1515", 0,
+   "addition with this number"} ,
   {"inputbase", 'i', "0123456789", 0,
-   "input base character set"},
+   "input base character set"} ,
   {"ibase" ,  'n' , "10" , 0,
-   "convert from base n using generic set"},
+   "convert from base n using generic set"} ,
   {"outputbase", 'o', "01", 0,
-   "output base character set"},
+   "output base character set"} ,
   {"obase" ,  'm',  "2" , 0,
-   "convert to base m using generic set"},
+   "convert to base m using generic set"} ,
   {0}
 };
 //
@@ -51,6 +45,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
     case 'o':
       pargs -> outputbase = arg;
+      break;
+    case '+':
+      pargs -> add = arg;
       break;
     case 'n':
       pargs->ibase = atoi(arg);
@@ -92,6 +89,7 @@ int parse (int argc, char **argv, t_arguments pargs )
   pargs->verbose =  0;
   pargs->ibase   = 10;
   pargs->obase   =  2;
+  pargs->add     = NULL;
   // PARSER
   argp_parse (&argp, argc, argv, 0, 0, pargs);
   return(0);

@@ -37,21 +37,24 @@ void append_value_to_number( char l , t_number number )
   // IF WE ARE HERE THEN EVERYTHING IS PEACHY
   number->value[curr_pos]   = l;
   number->value[curr_pos+1] = '\0';
-  number->size = curr_pos+1;
+  number->size = curr_pos+1 ;
 }
 
 void assign_base2number( t_number number , int base , char *basisset )
 {
+  if (number->set !=NULL )
+    fatal("CANNOT ALLOCATE ALREADY DEFINED SET");
   int scz = 1 ; // sizeof char is 1
   number -> base = base;
-  number -> set = (char*)calloc( number->base,scz );
-  number -> was_allocd[1] = number->base ;
+  number -> set = (char*)calloc( number->base+1 , scz );
+  number -> was_allocd[1] = number->base+1 ;
   if(basisset==NULL || carrlen(basisset)!=base)
     for(int i=0;i<base;i++)
       number->set[i] = i+SYMBOL_NULL_INDEX;
   else if( carrlen(basisset)==base )
     for(int i=0;i<base;i++)
       number->set[i] = basisset[i];
+  number->set[number -> was_allocd[1]-1]='\0';
 }
 
 t_number create_number(void)
@@ -106,7 +109,6 @@ void print_base_character_set( int base )
 }
 //
 // THE FOLLOWING THREE FUNCTIONS ARE ONLY
-// NEEDED BY THE NEANDERTHAL ALGORITHM
 int get_order_of_character_in_base( char symbol , int base )
 {
     for ( int i=0 ; i<base ; i++ )
@@ -124,81 +126,16 @@ char sog( int i, int base )
   return ( i+SYMBOL_NULL_INDEX );
 }
 //
-// THESE ARE MADE INTO FUNCTIONS TO SHOW
-// THE RELATIONSHIP TO THE INITIAL IMPLEMENTATION
 int  gos_char( char s, t_number number )
 {
   for ( int i=0 ; i<number->base ; i++ )
     if ( s==number->set[i] )
       return ( i );
 }
+
 char sog_int( int i, t_number number )
 {
   return ( number->set[i] );
-}
-
-void algo( char *argv , int bases[2], int bVerbose )
-// NEANDERTHAL VERSION
-{
-  if ( bVerbose )
-  {
-    fprintf ( stdout , "GOT: %s\n " , argv ) ;
-    fprintf ( stdout , "TRANSFORM: %d TO %d \n" , bases[0] , bases[1] ) ;
-  }
-
-  if ( 1 )
-  {
-    int J = 0;
-    int finished = 0;
-    if ( bVerbose )
-    {
-      fprintf ( stdout , "%s > " , argv );
-    }
-    while ( finished == 0 )
-    {
-      int done = 0 ;
-      int i    = 0 ;
-      char l   = '0';
-      int lead = 1 ;
-      while ( 1 )
-      {
-	char c = argv[i];
-	if ( lead == 1 && c == SYMBOL_NULL_INDEX )
-	{
-	  i += 1;
-	  continue;
-	}
-	if ( lead == 1 && c != SYMBOL_NULL_INDEX && c != '\0' )
-	  lead = 0;
-	if ( c == '\0' )
-	{
-	  if ( lead==1 )
-	  {
-	    finished = 1;
-	    done = 1;
-	  } else {
-	    fprintf ( stdout,"%c",l );
-	  }
-	  break;
-	}
-	int num = gos( c , bases[0] ) + gos(l,bases[1])*bases[0] ;
-	int mul = ( num/bases[1] ) ;
-	l = sog( num - bases[1]*mul , bases[1] ) ;
-	argv[i] = mul + SYMBOL_NULL_INDEX ;
-	if ( bVerbose )
-	{
-	  fprintf ( stdout,"[ %d ]",mul ) ;
-	}
-	i += 1 ;
-	if ( mul == 0 )
-	{
-	  done = 1 ;
-	}
-      }
-      J += 1;
-    }
-    fprintf ( stdout , "\n" );
-  }
 }
 
 int size_of_value ( t_number num )
@@ -235,17 +172,17 @@ void copy_carr_to_value(  char carr[] , t_number num )
   if ( num->was_allocd[2] == 0 )
   {
     for ( int i=0 ; i<m ; i++ )
-      append_value_to_number( carr[i] ,  num );      
+      append_value_to_number ( carr[i] ,  num );
   }
   if ( num->was_allocd[2]>0 )
   {
     for ( int i=0 ; i<m ; i++ )
     {
-      num->value[i] = carr[i];
+      num->value[i] = carr[i] ;
     }
-    num->value[m] = '\0';
+    num->value[m] = '\0' ;
   }
-  num->size = carrlen(num->value);
+  num->size = carrlen ( num->value );
 }
 
 int conversion ( t_number num_i , t_number num_o , int bVerbose )
@@ -257,8 +194,8 @@ int conversion ( t_number num_i , t_number num_o , int bVerbose )
   int  nc = size_of_value( num_i );
   char tmp_carr[ nc ];
   for ( int i=0 ; i<=nc ; i++ )
-    tmp_carr[i] = ' ';
-  tmp_carr[nc] = '\0';
+    tmp_carr[i] = ' ' ;
+  tmp_carr[nc] = '\0' ;
   copy_value_to_carr( num_i , tmp_carr );
   // DONE
   
@@ -378,7 +315,8 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
     } else {
       number_u = num_a ;
     }
-    show_number ( number_u ) ;
+    if(bVerbose)
+      show_number ( number_u ) ;
     
     if ( num_b->base!=2 )
     {
@@ -389,51 +327,49 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
     } else {
       number_d = num_b;
     }
-    show_number ( number_d );
+    if(bVerbose)
+      show_number ( number_d );
   }
   int N , M , n, m;
-  t_number larger_number;
+  t_number larger_number,smaller_number;
   N = number_u->size;
   M = number_d->size;
   n = N>M?M:N ;
   m = N>M?N:M ;
   larger_number = N>=M?number_u:number_d;
+  smaller_number= N>=M?number_d:number_u;
   //
   // DOING BINARY BITWISE ADDITION
-  // THIS IS WHY THE BRACKETS SHOULD BE
-  // BELOW THE EVALUATING EXPRESSION ...
   // if ( number_u->size == number_d->size )
   {
     // THIS IS A LOCAL SCOPE
-    char vu0 = '0' , vd0 = '0' ;
-    int   i0 =  0  ,  j0 =  0  ;
-    for ( int i = 0 ; i<n ; i++ ) // ASSUMING HUMAN READABLE INPUT
+    char vu0 = base[0] , vd0 = base[0] ;
+    int   i0 = 0 , j0 =  0 ;
+    for ( int i = 0 ; i <= m ; i++ )
     {
-      char ir = '0' ;
-      i0 = (N-1-i) ;
-      j0 = (M-1-i) ;
-      ir  = xor ( number_u -> value[i0] ,
-		  number_d -> value[j0] ,
-		  base );
-      char res_ = or ( ir , vu0 , base );
+      char snv = base[0] , lnv = base[0];
+      char ir = base[0] ;
+      i0 = (m-1-i) ;
+      lnv = i0<m&&i0>=0 ? larger_number->value[i0] : base[0];
+      j0 = (n-1-i) ;
+      snv = j0<n&&j0>=0 ? smaller_number->value[j0] : base[0];
+      ir  = xor ( lnv , snv , base ) ;
+      char res_ = xor ( ir , vu0 , base ) ;
       append_value_to_number( res_ , number_o ) ;
-      vu0 = and ( number_u -> value[i0] ,
-		  number_d -> value[j0] ,
-		  base );
-    }
-    for ( int i = m-n-1 ; i>=0 ; i-- )
-    {
-      char ir   = base[larger_number->value[i] == base[1]] ;
-      char res_ = xor ( ir , vu0 , base );
-      vu0 = and ( ir,vu0,base ) ;
-      append_value_to_number ( res_ ,number_o ) ;
+      vu0 = base[  (lnv==base[1] && snv==base[1]) ||
+	 (lnv==base[1] && vu0==base[1]) ||
+	 (vu0==base[1] && snv==base[1]) ] ;
     }
     if ( vu0==base[1] ) // THE FINAL BIT MIGHT BE ONE BIT LARGER THAN THE TWO OTHER NUMBERS
       append_value_to_number ( vu0 ,number_o ) ;
   }
   mirror_number_value ( number_o );
   if ( bVerbose )
-    fprintf ( stdout , "\nDONE : %s\n" , number_o -> value ) ;
+  {
+    fprintf ( stdout , "HAD : %s\n" , number_u -> value ) ;
+    fprintf ( stdout , "HAD : %s\n" , number_d -> value ) ;
+    fprintf ( stdout , "RES : %s\n" , number_o -> value ) ;
+  }
 
   if ( 1 ) // CONVERT BACK TO THE USER INPUT BASE
   {

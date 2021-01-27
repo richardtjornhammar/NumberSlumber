@@ -38,7 +38,6 @@ int main ( int argc, char *argv[] )
   int bVerbose = pargs -> verbose;
 
   t_number number_i , number_o , number_r , number_e;
-
   number_i = create_number() ;
   number_o = create_number() ;
   //
@@ -51,23 +50,23 @@ int main ( int argc, char *argv[] )
   if ( bVerbose )
     show_number ( number_i );
   //
-  conversion ( number_i , number_o , bVerbose );
+  if ( pargs->add !=NULL )
+  {
+    t_number numb = instantiate_number( pargs->add , number_i->set ) ;
+    number_e = add_numbers( number_i , numb , bVerbose ) ;
+    if(bVerbose)
+      fprintf ( stdout , "%s + %s = %s \n" , numb->value , number_i->value, number_e->value );
+    free_number ( numb );
+    free_number ( number_i );
+    number_i = number_e;
+  }
   //
-  fprintf(stdout,"%s\n",number_o->value);
+  conversion ( number_i , number_o , bVerbose );
+  fprintf ( stdout , "%s\n" , number_o->value );
   //
   if ( bVerbose )
     show_number ( number_o );
-  //
-  if (0)
-  {
-    fprintf(stdout,"ADDING\n");
-    t_number numb = instantiate_number("12","0123456789");
-    number_e = add_numbers( number_i , numb , bVerbose );
-    show_number ( number_e );
-    show_number ( numb );
-    free_number ( numb );
-    free_number ( number_e );
-  }  
+
   free_number ( number_i );
   free_number ( number_o );
 
