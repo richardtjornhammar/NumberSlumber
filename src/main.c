@@ -5,6 +5,35 @@
 #include "parser.h"
 #include "numbers.h"
 
+#include <math.h>
+
+typedef enum{False,True} bool;
+
+bool isItPrime_rec( unsigned long N ,
+                    unsigned long M ,
+                    unsigned long p ,
+                    double lM05 )
+{
+    if ((M%p)==0 && p>=2)
+        return ( N==2 ) ;
+    else
+       if (log(p) > lM05)
+           return ( True ) ;
+       return ( isItPrime_rec(N-1,M,p+1,lM05) ) ;
+}
+
+bool isItPrime ( unsigned long N )
+{
+    unsigned long p = 1 ;
+    unsigned long M = N ;
+    double lM05 ;
+    if ( N<=2 )
+        return ( True ) ;
+    lM05 = log(M)*0.5 ;
+    return ( isItPrime_rec( N , M , p , lM05 ) );
+}
+
+
 int main ( int argc, char *argv[] )
 // guix environment --container --ad-hoc gcc-toolchain
 // compile with: $ gcc -lm main.c -o nums
@@ -61,6 +90,9 @@ int main ( int argc, char *argv[] )
     number_i = number_e;
   }
   //
+  char mod_ = 0;
+  mod_ = mod(number_i , number_o , bVerbose);
+  fprintf ( stdout , "IMOD: %c\n" , mod_ );
   conversion ( number_i , number_o , bVerbose );
   fprintf ( stdout , "%s\n" , number_o->value );
   //

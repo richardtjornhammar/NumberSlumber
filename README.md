@@ -12,7 +12,7 @@ guix environment --container --ad-hoc gcc-toolchain
 ```
 Afterwards we can compile the program :
 ```
-gcc src/main.c -o nums
+gcc src/*.c -lm -o nums
 ```
 And now we can crunch those numbers!
 

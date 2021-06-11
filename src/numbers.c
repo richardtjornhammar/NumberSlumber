@@ -62,7 +62,8 @@ t_number create_number(void)
   t_number number;
   number = (a_number*) malloc(sizeof(a_number));
   number -> was_allocd[0] = 1;
-  number -> was_allocd[1] = 0; // THE VALUE COULD BE SET AND NOT ALLOCATED !
+  number -> was_allocd[1] = 0;
+  // THE VALUE COULD BE SET AND NOT ALLOCATED !
   number -> was_allocd[2] = 0;
   return ( number );
 }
@@ -116,6 +117,7 @@ int get_order_of_character_in_base( char symbol , int base )
 	return(i);
     return(-1);
 }
+
 int  gos( char s, int b )
 {
   return ( get_order_of_character_in_base( s , b ) );
@@ -185,6 +187,83 @@ void copy_carr_to_value(  char carr[] , t_number num )
   num->size = carrlen ( num->value );
 }
 
+// MOD
+char mod ( t_number num_i , t_number num_o , int bVerbose )
+{
+  char *argv , bases[2];
+  //
+  // CREATES A STORE OF
+  // THE ORIGINAL INPUT
+  int  nc = size_of_value( num_i );
+  char tmp_carr[ nc ];
+  for ( int i=0 ; i<=nc ; i++ )
+    tmp_carr[i] = ' ' ;
+  tmp_carr[nc] = '\0' ;
+  copy_value_to_carr( num_i , tmp_carr );
+  // DONE
+  
+  if ( bVerbose )
+  {
+    fprintf ( stdout , "GOT NUMBERS:\n" ) ;
+    show_number ( num_i ) ;
+    fprintf ( stdout , "WILL TRANSFORM FROM BASE %d TO BASE %d \n" , num_i->base , num_o->base ) ;
+  }
+  if ( 1 )
+  {
+    int J = 0;
+    int finished = 0;
+    if ( bVerbose )
+    {
+      fprintf ( stdout , "%s > " , num_i->value );
+    }
+    while ( finished == 0 )
+    {
+      int done = 0 ;
+      int  i   = 0 ;
+      char l   = num_o->set[0];
+      int lead = 1 ;
+      while ( 1 )
+      {
+	char c = num_i->value[i];
+	if ( lead == 1 && c == num_i->set[0] )
+	{
+	  i += 1;
+	  continue;
+	}
+	if ( lead == 1 && c != num_i->set[0] && c != '\0' )
+	  lead = 0;
+	if ( c == '\0' )
+	{
+	  if ( lead==1 )
+	  {
+	    finished = 1 ;
+	    done = 1 ;
+	  } else {
+	    if ( bVerbose )
+	      fprintf ( stdout," {%c} ",l ) ;
+	    append_value_to_number( l , num_o ) ;
+	    break;
+	  }
+	  break;
+	}
+	int num = gos_char( c,num_i ) + gos_char( l,num_o )*num_i->base ;
+	int mul = ( num/num_o->base ) ;
+	l = sog_int( num - num_o->base*mul , num_o );
+	num_i -> value[i] = num_i->set[mul];
+	i += 1 ;
+	if ( mul == 0 )
+	{
+	  done = 1 ;
+	}
+      }
+      J += 1;
+    }
+  }
+  return ( num_o->value[0] );
+}
+// MOD
+
+
 int conversion ( t_number num_i , t_number num_o , int bVerbose )
 {
   char *argv , bases[2];
@@ -242,7 +321,7 @@ int conversion ( t_number num_i , t_number num_o , int bVerbose )
 	  }
 	  break;
 	}
-	int num = gos_char( c , num_i ) + gos_char( l , num_o )*num_i->base ;
+	int num = gos_char( c,num_i ) + gos_char( l,num_o )*num_i->base ;
 	int mul = ( num/num_o->base ) ;
 	l = sog_int( num - num_o->base*mul , num_o );
 	num_i -> value[i] = num_i->set[mul];
