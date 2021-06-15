@@ -90,14 +90,11 @@ int main ( int argc, char *argv[] )
     number_i = number_e;
   }
   //
-  char mod_ = 0;
-  mod_ = mod(number_i , number_o , bVerbose);
-  fprintf ( stdout , "IMOD: %c\n" , mod_ );
-  conversion ( number_i , number_o , bVerbose );
-  fprintf ( stdout , "%s\n" , number_o->value );
-  //
   if ( bVerbose )
     show_number ( number_o );
+
+  conversion ( number_i , number_o , bVerbose );
+  fprintf( stdout, "%s\n", number_o -> value );
 
   free_number ( number_i );
   free_number ( number_o );

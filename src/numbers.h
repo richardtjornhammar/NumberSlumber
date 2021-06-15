@@ -22,7 +22,6 @@ void     print_base_character_set ( int base );
 int      gos_char( char s, t_number number );
 char     sog_int( int i, t_number number );
 int      conversion( t_number num_i, t_number num_o, int bVerbose );
-char     mod( t_number num_i, t_number num_o, int bVerbose );
 t_number add_numbers ( t_number num_a, t_number num_b, int bVerbose );
 void     copy_carr_to_value (  char * , t_number );
 void     copy_value_to_carr ( t_number , char * );
