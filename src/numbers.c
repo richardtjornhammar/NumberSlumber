@@ -359,15 +359,6 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
       vu0 = base[ bn%2 ];
       r0  = bn>=2;
       append_value_to_number( vu0 , number_o ) ;
-      /*
-      lnv = i0<m&&i0>=0 ? larger_number->value[i0] : base[0];
-      snv = j0<n&&j0>=0 ? smaller_number->value[j0] : base[0];
-      ir  = xor ( lnv , snv , base ) ;
-      char res_ = xor ( ir , vu0 , base ) ;
-      append_value_to_number( res_ , number_o ) ;
-      vu0 = base[  (lnv==base[1] && snv==base[1]) ||
-	 (lnv==base[1] && vu0==base[1]) ||
-	 (vu0==base[1] && snv==base[1]) ] ; */
     }
     if ( r0==1 ) // THE FINAL BIT MIGHT BE ONE BIT LARGER THAN THE TWO OTHER NUMBERS
       append_value_to_number ( base[1] ,number_o ) ;
