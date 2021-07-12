@@ -200,7 +200,7 @@ int conversion ( t_number num_i , t_number num_o , int bVerbose )
   tmp_carr[nc] = '\0' ;
   copy_value_to_carr( num_i , tmp_carr );
   // DONE
-  
+
   if ( bVerbose )
   {
     fprintf ( stdout , "GOT NUMBERS:\n" ) ;
@@ -305,7 +305,7 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
 
   number_o = create_number();
   assign_base2number ( number_o , nbase , base );
-  
+
   if ( num_a->was_allocd[2]>0 && num_b->was_allocd[2]>0 )
   {
     if ( num_a->base!=2 )
@@ -319,7 +319,7 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
     }
     if(bVerbose)
       show_number ( number_u ) ;
-    
+
     if ( num_b->base!=2 )
     {
       number_d = create_number() ;
@@ -346,24 +346,31 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
   {
     // THIS IS A LOCAL SCOPE
     char vu0 = base[0] , vd0 = base[0] ;
-    int   i0 = 0 , j0 =  0 ;
+    int   i0 = 0 , j0 =  0 , r0 = 0;
     for ( int i = 0 ; i <= m ; i++ )
     {
       char snv = base[0] , lnv = base[0];
-      char ir = base[0] ;
-      i0 = (m-1-i) ;
+      char ir  = base[0] ;
+      i0  = (m-1-i) ;
+      j0  = (n-1-i) ;
+      int bi = i0<m&&i0>=0 ? larger_number->value[i0]==base[1] : 0;
+      int bj = j0<n&&j0>=0 ? smaller_number->value[j0]==base[1] : 0;
+      int bn = bi+bj+r0;
+      vu0 = base[ bn%2 ];
+      r0  = bn>=2;
+      append_value_to_number( vu0 , number_o ) ;
+      /*
       lnv = i0<m&&i0>=0 ? larger_number->value[i0] : base[0];
-      j0 = (n-1-i) ;
       snv = j0<n&&j0>=0 ? smaller_number->value[j0] : base[0];
       ir  = xor ( lnv , snv , base ) ;
       char res_ = xor ( ir , vu0 , base ) ;
       append_value_to_number( res_ , number_o ) ;
       vu0 = base[  (lnv==base[1] && snv==base[1]) ||
 	 (lnv==base[1] && vu0==base[1]) ||
-	 (vu0==base[1] && snv==base[1]) ] ;
+	 (vu0==base[1] && snv==base[1]) ] ; */
     }
-    if ( vu0==base[1] ) // THE FINAL BIT MIGHT BE ONE BIT LARGER THAN THE TWO OTHER NUMBERS
-      append_value_to_number ( vu0 ,number_o ) ;
+    if ( r0==1 ) // THE FINAL BIT MIGHT BE ONE BIT LARGER THAN THE TWO OTHER NUMBERS
+      append_value_to_number ( base[1] ,number_o ) ;
   }
   mirror_number_value ( number_o );
   if ( bVerbose )
