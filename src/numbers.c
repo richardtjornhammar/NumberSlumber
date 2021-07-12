@@ -296,6 +296,17 @@ char or ( char b_1 , char b_2 , char base[2] )
   return ( v[ b1 || b2 ] );
 }
 
+t_number copy_number( t_number num_o )
+{
+    t_number number_r;
+    number_r = create_number();
+    assign_base2number ( number_r , num_o->base , num_o->set );
+    for ( int i=0 ; i<num_o->size ; i++ )
+        append_value_to_number ( num_o->value[i] ,number_r ) ;
+    number_r->size = num_o->size;
+    return ( number_r );
+}
+
 t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
 {
   // WE DEFINE A CALCULATION BASE
@@ -342,15 +353,12 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
   smaller_number= N>=M?number_d:number_u;
   //
   // DOING BINARY BITWISE ADDITION
-  // if ( number_u->size == number_d->size )
   {
     // THIS IS A LOCAL SCOPE
     char vu0 = base[0] , vd0 = base[0] ;
     int   i0 = 0 , j0 =  0 , r0 = 0;
     for ( int i = 0 ; i <= m ; i++ )
     {
-      char snv = base[0] , lnv = base[0];
-      char ir  = base[0] ;
       i0  = (m-1-i) ;
       j0  = (n-1-i) ;
       int bi = i0<m&&i0>=0 ? larger_number->value[i0]==base[1] : 0;
@@ -371,7 +379,102 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
     fprintf ( stdout , "RES : %s\n" , number_o -> value ) ;
   }
 
-  if ( 1 ) // CONVERT BACK TO THE USER INPUT BASE
+  if ( num_a->base>2 ) // CONVERT BACK TO THE USER INPUT BASE
+  {
+    t_number number_r;
+    number_r = create_number();
+    assign_base2number ( number_r , num_a->base , num_a->set );
+    conversion ( number_o , number_r , bVerbose );
+    free_number( number_o );
+    return ( number_r ) ;
+  }
+  //
+  // RETURNS A POINTER TO THE ALLOCATED NUMBER CONTAINING THE RESULT
+  return ( number_o );
+}
+
+t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
+{
+  // WE DEFINE A CALCULATION BASE
+  int  nbase = 2 ;
+  char base[ 3 ] = {'0','1','\0'};
+  t_number number_u, number_d, number_o ;
+
+  number_o = create_number();
+  assign_base2number ( number_o , nbase , base );
+
+  if ( num_a->was_allocd[2]>0 && num_b->was_allocd[2]>0 )
+  {
+    if ( num_a->base!=2 )
+    {
+      number_u = create_number() ;
+      assign_base2number ( number_u , nbase , base );
+      conversion ( num_a , number_u , bVerbose );
+      number_u -> size = carrlen ( number_u->value );
+    } else {
+      number_u = num_a ;
+    }
+    if ( bVerbose )
+      show_number ( number_u ) ;
+
+    if ( num_b->base!=2 )
+    {
+      number_d = create_number() ;
+      assign_base2number ( number_d , nbase , base );
+      conversion ( num_b , number_d , bVerbose );
+      number_d -> size = carrlen ( number_d->value );
+    } else {
+      number_d = num_b;
+    }
+    if(bVerbose)
+      show_number ( number_d );
+  }
+  int N , M , n, m;
+  t_number larger_number,smaller_number;
+  N = number_u->size;
+  M = number_d->size;
+  n = N>M?M:N ;
+  m = N>M?N:M ;
+  larger_number = N>=M?number_u:number_d;
+  smaller_number= N>=M?number_d:number_u;
+  t_number number_temp , number_res ;
+  {
+    // THIS IS A LOCAL SCOPE
+    char vu0 = base[0] , vd0 = base[0] ;
+    int   i0 = 0 , j0 =  0 , r0 = 0 ;
+    number_temp = copy_number( larger_number );
+    int p0  = 0 ;
+    int cnt = 0 ;
+    for ( int i = 0 ; i < n ; i++ )
+    {
+      if ( smaller_number->value[n-i-1] == base[0] )
+      {
+          cnt++ ;
+	  append_value_to_number( base[0] , number_temp ) ;
+      } else {
+	if ( number_res->size<1 )
+	{
+	    number_res = copy_number ( number_temp );
+	}
+	else
+	{
+	    t_number tmp;
+	    tmp = add_numbers ( number_temp , number_res , bVerbose );
+            number_res = copy_number ( number_temp );
+	}
+      }
+    }
+  }
+  free(number_o);
+  number_o = copy_number ( number_res );
+  if ( bVerbose )
+  {
+    fprintf ( stdout , "HAD : %s\n" , number_u -> value ) ;
+    fprintf ( stdout , "HAD : %s\n" , number_d -> value ) ;
+    fprintf ( stdout , "RES : %s\n" , number_o -> value ) ;
+  }
+
+  if ( num_a->base>2 ) // CONVERT BACK TO THE USER INPUT BASE
   {
     t_number number_r;
     number_r = create_number();

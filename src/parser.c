@@ -16,6 +16,8 @@ static struct argp_option options[] =
   {"verbose", 'v', 0, 0, "Produce verbose output"} ,
   {"add", '+', "1515", 0,
    "addition with this number"} ,
+  {"multiply", '*', "1337", 0,
+   "multiplication with this number"} ,
   {"inputbase", 'i', "0123456789", 0,
    "input base character set"} ,
   {"ibase" ,  'n' , "10" , 0,
@@ -48,6 +50,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
       break;
     case '+':
       pargs -> add = arg;
+      break;
+    case '*':
+      pargs -> mult = arg;
       break;
     case 'n':
       pargs->ibase = atoi(arg);
@@ -90,6 +95,7 @@ int parse (int argc, char **argv, t_arguments pargs )
   pargs->ibase   = 10;
   pargs->obase   =  2;
   pargs->add     = NULL;
+  pargs->mult    = NULL;
   // PARSER
   argp_parse (&argp, argc, argv, 0, 0, pargs);
   return(0);

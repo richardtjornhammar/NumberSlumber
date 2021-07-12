@@ -6,7 +6,7 @@ typedef struct argus {
   char *args[1];                        // ARGUMENT
   int   verbose,ibase,obase;            // VERBOSITY AND GENERIC BASE SETTING
   char *inputbase,*outputbase;          // THE BASIS SETS
-  char *add;
+  char *add,*mult;
 } arguments;
 typedef arguments *t_arguments;
 
