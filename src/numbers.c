@@ -307,6 +307,29 @@ t_number copy_number( t_number num_o )
     return ( number_r );
 }
 
+void copy_number_value( t_number num_i, t_number num_o )
+{
+    if ( ! ( num_i->base==num_o->base)  )
+    {
+        fprintf ( stderr , "%d %d\n" , num_i->size , num_o->size );
+        fprintf ( stderr , "ERROR : MUST SUPPLY TWO COMPLETE NUMBERS IN THE SAME BASE\n");
+        exit(1);
+    }
+    int n = 0 ;
+    n = num_o->size < num_i->size ? num_o->size : num_i->size ;
+    for ( int i=0 ; i<n ; i++ )
+    {
+        num_o -> value[i] = num_i -> value[i] ;
+    }
+    num_o->size = n ;
+    if( n < num_i->size )
+    {
+      for ( int j=n ; j<num_i->size ; j++ )
+          append_value_to_number ( num_i->value[j] ,num_o ) ;
+    }
+    // show_number( num_o );
+}
+
 t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
 {
   // WE DEFINE A CALCULATION BASE
@@ -361,8 +384,8 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
     {
       i0  = (m-1-i) ;
       j0  = (n-1-i) ;
-      int bi = i0<m&&i0>=0 ? larger_number->value[i0]==base[1] : 0;
-      int bj = j0<n&&j0>=0 ? smaller_number->value[j0]==base[1] : 0;
+      int bi = i0<m&&i0>=0 ? larger_number -> value[i0] == base[1] : 0;
+      int bj = j0<n&&j0>=0 ? smaller_number-> value[j0] == base[1] : 0;
       int bn = bi+bj+r0;
       vu0 = base[ bn%2 ];
       r0  = bn>=2;
@@ -385,7 +408,7 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
     number_r = create_number();
     assign_base2number ( number_r , num_a->base , num_a->set );
     conversion ( number_o , number_r , bVerbose );
-    free_number( number_o );
+    //free_number( number_o );
     return ( number_r ) ;
   }
   //
@@ -393,15 +416,57 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
   return ( number_o );
 }
 
+void determine_larger_smaller ( t_number number_u , t_number number_d )
+{
+  int N , M , n, m;
+  t_number larger_number,smaller_number;
+  N = number_u->size;
+  M = number_d->size;
+  n = N>M?M:N ;
+  m = N>M?N:M ;
+  larger_number = N>=M?number_u:number_d;
+  smaller_number= N>=M?number_d:number_u;
+  if ( n==m )
+  {
+    for ( int i =n ; i>=0 ; i-- )
+      if ( larger_number->value[i] == smaller_number->value[i] )
+      {
+	continue;
+      }
+      else
+      {
+	int J=0 , K=0 ;
+	for ( int j=0 ; j<larger_number->base ; j++ )
+	    if( larger_number->value[i] == larger_number->set[j] )
+	    {
+	        J = j;
+	        break;
+	    }
+	for ( int k=0 ; k<smaller_number->base ; k++ )
+	    if( smaller_number->value[i] == smaller_number->set[k] )
+	    {
+	        K = k;
+	        break;
+	    }
+	t_number numpointer;
+	if ( K>J )
+	{
+            numpointer     = smaller_number;
+	    smaller_number = larger_number;
+	    larger_number  = numpointer;
+	}
+      }
+  }
+  number_u = larger_number;
+  number_d = smaller_number;
+}
+  
 t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
 {
   // WE DEFINE A CALCULATION BASE
   int  nbase = 2 ;
   char base[ 3 ] = {'0','1','\0'};
   t_number number_u, number_d, number_o ;
-
-  number_o = create_number();
-  assign_base2number ( number_o , nbase , base );
 
   if ( num_a->was_allocd[2]>0 && num_b->was_allocd[2]>0 )
   {
@@ -431,42 +496,57 @@ t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
   }
   int N , M , n, m;
   t_number larger_number,smaller_number;
-  N = number_u->size;
-  M = number_d->size;
-  n = N>M?M:N ;
-  m = N>M?N:M ;
-  larger_number = N>=M?number_u:number_d;
-  smaller_number= N>=M?number_d:number_u;
+  larger_number=number_u;
+  smaller_number=number_d;
+
+  determine_larger_smaller ( larger_number , smaller_number );
+  n = larger_number->size;
+  m = smaller_number->size;
+  
   t_number number_temp , number_res ;
+  number_temp = create_number() ;
+  assign_base2number ( number_temp , nbase , base );
+  number_res = create_number() ;
+  assign_base2number ( number_res , nbase , base );  
+
   {
     // THIS IS A LOCAL SCOPE
+    int nres = 0 ;
     char vu0 = base[0] , vd0 = base[0] ;
     int   i0 = 0 , j0 =  0 , r0 = 0 ;
-    number_temp = copy_number( larger_number );
-    int p0  = 0 ;
-    int cnt = 0 ;
-    for ( int i = 0 ; i < n ; i++ )
+
+    copy_number_value ( larger_number , number_temp );
+    copy_number_value ( larger_number , number_res  );
+
+    show_number(number_res);
+
+    fprintf(stdout,"\nHERE\n");
+    show_number(smaller_number);
+    show_number(larger_number);
+
+    for ( int i = 0 ; i < smaller_number->size ; i++ )
     {
-      if ( smaller_number->value[n-i-1] == base[0] )
-      {
-          cnt++ ;
-	  append_value_to_number( base[0] , number_temp ) ;
-      } else {
-	if ( number_res->size<1 )
+        if ( smaller_number->value[i] == base[1] )
+        {
+	    t_number tmp ;
+	    fprintf(stdout,"\n \t>> ");
+	    show_number(number_temp);
+            if ( 1 )
+	    {
+	        tmp = add_numbers ( number_temp , number_res , bVerbose );
+                copy_number_value ( tmp , number_res );
+	    }
+	    fprintf(stdout,"\n \t>> ");
+	    show_number ( number_res );
+        }
+	if(i>0)
 	{
-	    number_res = copy_number ( number_temp );
+            append_value_to_number( base[0] , number_temp ) ;
 	}
-	else
-	{
-	    t_number tmp;
-	    tmp = add_numbers ( number_temp , number_res , bVerbose );
-            number_res = copy_number ( number_temp );
-	}
-      }
     }
   }
-  free(number_o);
-  number_o = copy_number ( number_res );
+  number_o = number_res;
+
   if ( bVerbose )
   {
     fprintf ( stdout , "HAD : %s\n" , number_u -> value ) ;

@@ -22,6 +22,8 @@ void     print_base_character_set ( int base );
 int      gos_char( char s, t_number number );
 char     sog_int( int i, t_number number );
 int      conversion( t_number num_i, t_number num_o, int bVerbose );
+void     copy_number_value ( t_number num_i, t_number num_o );
+void     determine_larger_smaller ( t_number, t_number );
 t_number copy_number ( t_number num_o );
 t_number add_numbers ( t_number num_a , t_number num_b, int bVerbose );
 t_number multiply_numbers ( t_number num_a, t_number num_b, int bVerbose );
