@@ -416,49 +416,52 @@ t_number add_numbers ( t_number num_a , t_number num_b , int bVerbose )
   return ( number_o );
 }
 
-void determine_larger_smaller ( t_number number_u , t_number number_d )
+int determine_larger_smaller ( t_number number_u , t_number number_d )
 {
-  int N , M , n, m;
+  int N , M , n, m, S;
   t_number larger_number,smaller_number;
   N = number_u->size;
   M = number_d->size;
+  S = N>=M;
+  
   n = N>M?M:N ;
   m = N>M?N:M ;
   larger_number = N>=M?number_u:number_d;
   smaller_number= N>=M?number_d:number_u;
   if ( n==m )
   {
-    for ( int i =n ; i>=0 ; i-- )
-      if ( larger_number->value[i] == smaller_number->value[i] )
-      {
-	continue;
-      }
-      else
+    for ( int i =0 ; i<n ; i++ )
+    {
+      if ( larger_number->value[i] != smaller_number->value[i] )
       {
 	int J=0 , K=0 ;
-	for ( int j=0 ; j<larger_number->base ; j++ )
+	for ( int j=larger_number->base-1 ; j>=0 ; j-- )
+	  {
 	    if( larger_number->value[i] == larger_number->set[j] )
 	    {
 	        J = j;
-	        break;
 	    }
-	for ( int k=0 ; k<smaller_number->base ; k++ )
+	  }
+	for ( int k=smaller_number->base-1 ; k>=0 ; k-- )
+	  {
 	    if( smaller_number->value[i] == smaller_number->set[k] )
 	    {
 	        K = k;
-	        break;
 	    }
-	t_number numpointer;
+	  }
 	if ( K>J )
 	{
+	    t_number numpointer;
             numpointer     = smaller_number;
 	    smaller_number = larger_number;
 	    larger_number  = numpointer;
+	    S = 0 ;
+	    break ;
 	}
       }
+    }
   }
-  number_u = larger_number;
-  number_d = smaller_number;
+  return ( S );
 }
   
 t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
@@ -494,12 +497,15 @@ t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
     if(bVerbose)
       show_number ( number_d );
   }
-  int N , M , n, m;
+  int N , M , n, m, S;
   t_number larger_number,smaller_number;
-  larger_number=number_u;
-  smaller_number=number_d;
-
-  determine_larger_smaller ( larger_number , smaller_number );
+  larger_number  = number_u;
+  smaller_number = number_d;
+  if( determine_larger_smaller ( number_u , number_d ) == 0 )
+  {
+      larger_number  = number_d;
+      smaller_number = number_u;
+  }
   n = larger_number->size;
   m = smaller_number->size;
   
@@ -518,8 +524,6 @@ t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
     copy_number_value ( larger_number , number_temp );
     copy_number_value ( larger_number , number_res  );
 
-    show_number(number_res);
-
     fprintf(stdout,"\nHERE\n");
     show_number(smaller_number);
     show_number(larger_number);
@@ -529,9 +533,9 @@ t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
         if ( smaller_number->value[i] == base[1] )
         {
 	    t_number tmp ;
-	    fprintf(stdout,"\n \t>> ");
-	    show_number(number_temp);
-            if ( 1 )
+	    fprintf(stdout,"\n \t>> " );
+	    show_number ( number_temp );
+            if ( i>0 )
 	    {
 	        tmp = add_numbers ( number_temp , number_res , bVerbose );
                 copy_number_value ( tmp , number_res );
@@ -539,10 +543,7 @@ t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
 	    fprintf(stdout,"\n \t>> ");
 	    show_number ( number_res );
         }
-	if(i>0)
-	{
-            append_value_to_number( base[0] , number_temp ) ;
-	}
+        append_value_to_number( base[0] , number_temp ) ;
     }
   }
   number_o = number_res;
