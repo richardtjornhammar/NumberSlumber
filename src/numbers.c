@@ -434,30 +434,23 @@ int determine_larger_smaller ( t_number number_u , t_number number_d )
     {
       if ( larger_number->value[i] != smaller_number->value[i] )
       {
-	int J=0 , K=0 ;
-	for ( int j=larger_number->base-1 ; j>=0 ; j-- )
+	int J = 0 , K = 0 ;
+	for ( int j=0 ; j<larger_number->base ; j++ )
 	  {
-	    if( larger_number->value[i] == larger_number->set[j] )
+	    if ( larger_number->value[i] == larger_number->set[j] )
 	    {
 	        J = j;
 	    }
 	  }
-	for ( int k=smaller_number->base-1 ; k>=0 ; k-- )
+	for ( int k=0 ; k<smaller_number->base ; k++ )
 	  {
-	    if( smaller_number->value[i] == smaller_number->set[k] )
+	    if ( smaller_number->value[i] == smaller_number->set[k] )
 	    {
 	        K = k;
 	    }
 	  }
-	if ( K>J )
-	{
-	    t_number numpointer;
-            numpointer     = smaller_number;
-	    smaller_number = larger_number;
-	    larger_number  = numpointer;
-	    S = 0 ;
-	    break ;
-	}
+	S = (int)K<J ;
+	break ;
       }
     }
   }
@@ -501,11 +494,16 @@ t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
   t_number larger_number,smaller_number;
   larger_number  = number_u;
   smaller_number = number_d;
-  if( determine_larger_smaller ( number_u , number_d ) == 0 )
+
+  S = determine_larger_smaller ( number_u , number_d );
+  if( S == 0 )
   {
       larger_number  = number_d;
       smaller_number = number_u;
   }
+  //show_number(smaller_number);
+  //show_number(larger_number);
+  
   n = larger_number->size;
   m = smaller_number->size;
   
@@ -523,25 +521,16 @@ t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
 
     copy_number_value ( larger_number , number_temp );
     copy_number_value ( larger_number , number_res  );
+    for ( int i=0 ; i<number_res->size ; i++ )
+      number_res -> value[i] = number_res->set[0];
 
-    fprintf(stdout,"\nHERE\n");
-    show_number(smaller_number);
-    show_number(larger_number);
-
-    for ( int i = 0 ; i < smaller_number->size ; i++ )
+    for ( int i = smaller_number->size-1 ; i >=0 ; i-- )
     {
         if ( smaller_number->value[i] == base[1] )
         {
 	    t_number tmp ;
-	    fprintf(stdout,"\n \t>> " );
-	    show_number ( number_temp );
-            if ( i>0 )
-	    {
-	        tmp = add_numbers ( number_temp , number_res , bVerbose );
-                copy_number_value ( tmp , number_res );
-	    }
-	    fprintf(stdout,"\n \t>> ");
-	    show_number ( number_res );
+            tmp = add_numbers ( number_temp , number_res , bVerbose );
+            copy_number_value ( tmp , number_res );
         }
         append_value_to_number( base[0] , number_temp ) ;
     }
@@ -561,7 +550,7 @@ t_number multiply_numbers ( t_number num_a , t_number num_b , int bVerbose )
     number_r = create_number();
     assign_base2number ( number_r , num_a->base , num_a->set );
     conversion ( number_o , number_r , bVerbose );
-    free_number( number_o );
+    //free_number( number_o );
     return ( number_r ) ;
   }
   //

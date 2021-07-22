@@ -95,7 +95,7 @@ int main ( int argc, char *argv[] )
     t_number numb = instantiate_number( pargs->mult , number_i->set ) ;
     number_e = multiply_numbers( number_i , numb , bVerbose ) ;
     if(bVerbose)
-      fprintf ( stdout , "%s + %s = %s \n" , numb->value , number_i->value, number_e->value );
+      fprintf ( stdout , "%s * %s = %s \n" , numb->value , number_i->value, number_e->value );
     free_number ( numb );
     free_number ( number_i );
     number_i = number_e;
